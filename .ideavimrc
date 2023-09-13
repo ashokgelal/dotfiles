@@ -1,0 +1,135 @@
+let mapleader=" "
+
+""" Plugins  --------------------------------
+set surround
+set multiple-cursors
+set commentary
+set argtextobj
+set easymotion
+set textobj-entire
+set ReplaceWithRegister
+set exchange
+set NERDTree
+" Trying the new syntax
+Plug 'machakann/vim-highlightedyank'
+Plug 'terryma/vim-multiple-cursors'	" See below for remapped keys. <A-n> doesn't work on Mac
+
+""" Plugin settings -------------------------
+let g:argtextobj_pairs="[:],(:),<:>"
+
+" Remap multiple-cursors shortcuts to match terryma/vim-multiple-cursors
+nmap <C-n> <Plug>NextWholeOccurrence
+vmap <C-n> <Plug>NextWholeOccurrence
+nmap g<C-n> <Plug>NextOccurrence
+vmap g<C-n> <Plug>NextOccurrence
+vmap <C-x> <Plug>SkipOccurrence
+vmap <C-p> <Plug>RemoveOccurrence
+
+" Note that the default <A-n> and g<A-n> shortcuts don't work on Mac due to dead keys.
+" <A-n> is used to enter accented text e.g. ñ
+nmap <leader><C-n> <Plug>AllWholeOccurrences
+vmap <leader><C-n> <Plug>AllWholeOccurrences
+nmap <leader><S-n> <Plug>AllOccurrences
+vmap <leader><S-n> <Plug>AllOccurrences
+
+""" Common settings -------------------------
+set showmode
+set so=5
+set incsearch
+set nu
+""" Combined both ignorecase and smartcase will search case-insensitive but will use case-sensitive search if an uppercase character is used ----------
+set ignorecase
+set smartcase
+
+""" Idea specific settings ------------------
+set ideajoin
+set ideastatusicon=gray
+
+""" My Mappings -----------------------------
+map <leader>ff <Action>(ReformatCode)
+" Reformat the current line only
+map <leader>fl V<Action>(ReformatCode)
+map <leader>r <Action>(RenameElement)
+map <S-Space> <Action>(GotoNextError)
+
+nmap gb <Action>(Back)
+nmap gD <Action>(GotoTypeDeclaration)
+nmap gf <Action>(Forward)
+nmap gL <Action>(QuickImplementations)
+nmap gy <Action>(ShowErrorDescription)
+nmap <leader>u <Action>(ShowUsages)
+nmap mr <Action>(MoveTabRight)
+nmap mb <Action>(Unsplit)
+map mu <Action>(MoveStatementUp)
+map md <Action>(MoveStatementDown)
+nmap <leader>t <Action>(TypeHierarchy)
+map <leader>s <Action>(SelectInProjectView)
+map <leader><leader> <Action>(SearchEverywhere)
+map <leader>t <Action>(ActivateTerminalToolWindow)
+nmap <leader>xe <Action>(CloseAllEditors)
+nmap <leader>xt <Action>(HideAllWindows)
+
+" map <leader>b <Action>(ToggleLineBreakpoint)
+map <leader>o <Action>(FileStructurePopup)
+map <leader>J Ji <ESC>
+
+" Just makes me nervous
+map H h
+
+" Redo
+map U <C-R>
+
+" Map vim marks to IDEA global marks
+set ideamarks
+
+set clipboard^=unnamedplus,unnamed
+
+function! Invert(calledFromVisual)
+  let antonyms = ['true', 'false', 'after', 'before', 'start', 'end', 'left', 'right', 'first', 'last', 'default', 'required',
+                 \'True', 'False', 'After', 'Before', 'Start', 'End', 'Left', 'Right', 'First', 'Last']
+
+  if a:calledFromVisual
+    normal gv"wy
+  else
+    normal "wyiw
+  endif
+  let wordUnderCaret = @w
+
+  let eraseWord = a:calledFromVisual ? 'gvc' : 'ciw'
+  let count = 0
+  while (count < len(antonyms))
+    if (antonyms[count] ==# wordUnderCaret)
+      let antonym = (count % 2 ==? 0) ? antonyms[count + 1] : antonyms[count - 1]
+      execute 'normal ' .. eraseWord .. antonym
+      break
+    endif
+    let count += 1
+  endwhile
+endfunction
+
+nnoremap ! :call Invert(0)<CR>
+vnoremap ! :<C-u>call Invert(1)<CR>
+"""
+"Key 	Description 	Map Setting
+"o 	Open files, directories and bookmarks 	g:NERDTreeMapActivateNode
+"go 	Open selected file, but leave cursor in the NERDTree 	g:NERDTreeMapPreview
+"t 	Open selected node/bookmark in a new tab 	g:NERDTreeMapOpenInTab
+"T 	Same as 't' but keep the focus on the current tab 	g:NERDTreeMapOpenInTabSilent
+"i 	Open selected file in a split window 	g:NERDTreeMapOpenSplit
+"gi 	Same as i, but leave the cursor on the NERDTree 	g:NERDTreeMapPreviewSplit
+"s 	Open selected file in a new vsplit 	g:NERDTreeMapOpenVSplit
+"gs 	Same as s, but leave the cursor on the NERDTree 	g:NERDTreeMapPreviewVSplit
+"O 	Recursively open the selected directory 	g:NERDTreeMapOpenRecursively
+"x 	Close the current nodes parent 	g:NERDTreeMapCloseDir
+"X 	Recursively close all children of the current node 	g:NERDTreeMapCloseChildren
+"P 	Jump to the root node 	g:NERDTreeMapJumpRoot
+"p 	Jump to current nodes parent 	g:NERDTreeMapJumpParent
+"K 	Jump up inside directories at the current tree depth 	g:NERDTreeMapJumpFirstChild
+"J 	Jump down inside directories at the current tree depth 	g:NERDTreeMapJumpLastChild
+"<C-J> 	Jump down to next sibling of the current directory 	g:NERDTreeMapJumpNextSibling
+"<C-K> 	Jump up to previous sibling of the current directory 	g:NERDTreeMapJumpPrevSibling
+"r 	Recursively refresh the current directory 	g:NERDTreeMapRefresh
+"R 	Recursively refresh the current root 	g:NERDTreeMapRefreshRoot
+"m 	Display the NERDTree menu 	g:NERDTreeMapMenu
+"q 	Close the NERDTree window 	g:NERDTreeMapQuit
+"A 	Zoom (maximize/minimize) the NERDTree window 	g:NERDTreeMapToggleZoom
